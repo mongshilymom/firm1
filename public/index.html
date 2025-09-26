@@ -1,0 +1,1614 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LetYou - 디지털 혁신의 새로운 기준</title>
+    
+    <meta name="description" content="LetYou - AI 기반 웹 에이전시. 2주 완성, 300% 전환율 상승, 대한민국 1위 웹 제작 전문가">
+    <meta property="og:title" content="LetYou - We Let You Shine Digital">
+    <meta property="og:description" content="삼성, 현대, 카카오가 선택한 웹 에이전시">
+    <meta property="og:image" content="https://letyou.kr/og-image.jpg">
+    <meta name="keywords" content="웹사이트제작, 홈페이지제작, 반응형웹, 쇼핑몰제작, UI/UX디자인">
+    
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='24' font-size='24'>⚡</text></svg>">
+    
+    <!-- Three.js for 3D Effects -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --black: #0a0a0a;
+            --white: #ffffff;
+            --accent: #FF3E00;
+            --accent-glow: #FF6B35;
+            --gray-dark: #1a1a1a;
+            --gray-light: #f0f0f0;
+            --success: #00FF88;
+        }
+
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--black);
+            color: var(--white);
+            overflow-x: hidden;
+            cursor: none;
+        }
+
+        /* Enhanced Custom Cursor */
+        .cursor {
+            width: 12px;
+            height: 12px;
+            background: var(--accent);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 10000;
+            transition: transform 0.1s ease;
+            mix-blend-mode: screen;
+        }
+
+        .cursor-follower {
+            width: 32px;
+            height: 32px;
+            border: 2px solid var(--accent);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transition: all 0.2s ease;
+            opacity: 0.5;
+        }
+
+        .cursor.hover {
+            transform: scale(2);
+            background: var(--accent-glow);
+        }
+
+        /* Loading Screen */
+        .loader {
+            position: fixed;
+            width: 100%;
+            height: 100vh;
+            background: var(--black);
+            z-index: 100000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s ease;
+        }
+
+        .loader-text {
+            font-size: 5rem;
+            font-weight: 900;
+            background: linear-gradient(90deg, var(--accent), var(--accent-glow), var(--accent));
+            background-size: 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradient 2s ease infinite;
+        }
+
+        @keyframes gradient {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 1.5rem 3rem;
+            z-index: 1000;
+            background: transparent;
+            transition: all 0.3s ease;
+        }
+
+        nav.scrolled {
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 1rem 3rem;
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: 900;
+            background: linear-gradient(90deg, var(--white), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--white);
+            text-decoration: none;
+            font-weight: 500;
+            position: relative;
+            transition: all 0.3s ease;
+            padding: 0.5rem 0;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--accent);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .nav-cta {
+            padding: 0.8rem 2rem;
+            background: var(--accent);
+            color: var(--white) !important;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .nav-cta:hover {
+            background: var(--accent-glow);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255, 62, 0, 0.3);
+        }
+
+        /* Hero Section with 3D */
+        .hero {
+            height: 100vh;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        #canvas-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            padding: 0 2rem;
+        }
+
+        .hero-title {
+            font-size: clamp(3rem, 10vw, 8rem);
+            font-weight: 900;
+            line-height: 0.9;
+            margin-bottom: 2rem;
+            opacity: 0;
+            transform: translateY(50px);
+            animation: fadeInUp 1s ease forwards;
+            animation-delay: 0.5s;
+        }
+
+        .hero-title .gradient-text {
+            background: linear-gradient(135deg, var(--white) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-subtitle {
+            font-size: 1.5rem;
+            opacity: 0.8;
+            margin-bottom: 3rem;
+            opacity: 0;
+            animation: fadeInUp 1s ease forwards;
+            animation-delay: 0.7s;
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 4rem;
+            justify-content: center;
+            margin-top: 4rem;
+            opacity: 0;
+            animation: fadeInUp 1s ease forwards;
+            animation-delay: 0.9s;
+        }
+
+        .hero-stat {
+            text-align: center;
+        }
+
+        .hero-stat-number {
+            font-size: 3rem;
+            font-weight: 900;
+            color: var(--accent);
+            display: block;
+        }
+
+        .hero-stat-label {
+            font-size: 0.9rem;
+            opacity: 0.7;
+            margin-top: 0.5rem;
+        }
+
+        /* Services Grid */
+        .services {
+            padding: 8rem 3rem;
+            background: var(--gray-dark);
+            position: relative;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            margin-bottom: 5rem;
+            text-align: center;
+        }
+
+        .section-label {
+            color: var(--accent);
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 1rem;
+        }
+
+        .section-title {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 900;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-desc {
+            font-size: 1.2rem;
+            opacity: 0.7;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        .service-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 3rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.5s ease;
+            cursor: pointer;
+        }
+
+        .service-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            animation: slide 3s linear infinite;
+        }
+
+        @keyframes slide {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .service-card:hover {
+            transform: translateY(-10px);
+            background: rgba(255, 62, 0, 0.05);
+            border-color: var(--accent);
+        }
+
+        .service-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .service-title {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .service-desc {
+            opacity: 0.7;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+
+        .service-features {
+            list-style: none;
+        }
+
+        .service-features li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+            opacity: 0.8;
+        }
+
+        .service-features li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--success);
+            font-weight: bold;
+        }
+
+        /* Portfolio Showcase */
+        .portfolio {
+            padding: 8rem 3rem;
+            background: var(--black);
+        }
+
+        .portfolio-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+        }
+
+        .portfolio-item {
+            position: relative;
+            height: 500px;
+            background: var(--gray-dark);
+            overflow: hidden;
+            cursor: pointer;
+            group: portfolio;
+        }
+
+        .portfolio-item:first-child {
+            grid-column: span 2;
+            height: 600px;
+        }
+
+        .portfolio-video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .portfolio-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 3rem;
+            background: linear-gradient(to top, rgba(0,0,0,0.95), transparent);
+            transform: translateY(100px);
+            transition: transform 0.5s ease;
+        }
+
+        .portfolio-item:hover .portfolio-video {
+            transform: scale(1.05);
+        }
+
+        .portfolio-item:hover .portfolio-overlay {
+            transform: translateY(0);
+        }
+
+        .portfolio-client {
+            font-size: 0.9rem;
+            color: var(--accent);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .portfolio-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+        }
+
+        .portfolio-desc {
+            opacity: 0.8;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .portfolio-tags {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .portfolio-tag {
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50px;
+            font-size: 0.85rem;
+        }
+
+        /* Pricing Section */
+        .pricing {
+            padding: 8rem 3rem;
+            background: linear-gradient(135deg, var(--gray-dark) 0%, var(--black) 100%);
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 5rem;
+        }
+
+        .pricing-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 3rem;
+            text-align: center;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .pricing-card.featured {
+            border-color: var(--accent);
+            transform: scale(1.05);
+        }
+
+        .pricing-card.featured::before {
+            content: 'POPULAR';
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--accent);
+            padding: 0.5rem 2rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--accent);
+        }
+
+        .pricing-plan {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .pricing-price {
+            font-size: 3.5rem;
+            font-weight: 900;
+            color: var(--accent);
+            margin: 1rem 0;
+        }
+
+        .pricing-price span {
+            font-size: 1.2rem;
+            opacity: 0.7;
+        }
+
+        .pricing-period {
+            opacity: 0.6;
+            margin-bottom: 2rem;
+        }
+
+        .pricing-features {
+            list-style: none;
+            margin: 2rem 0;
+            text-align: left;
+        }
+
+        .pricing-features li {
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .pricing-features li::before {
+            content: '✓';
+            color: var(--success);
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .pricing-cta {
+            width: 100%;
+            padding: 1.2rem;
+            background: var(--accent);
+            color: var(--white);
+            border: none;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 2rem;
+        }
+
+        .pricing-cta:hover {
+            background: var(--accent-glow);
+            transform: scale(1.05);
+        }
+
+        /* Process Timeline */
+        .process {
+            padding: 8rem 3rem;
+            background: var(--gray-dark);
+        }
+
+        .timeline {
+            position: relative;
+            max-width: 1000px;
+            margin: 5rem auto;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--accent);
+            transform: translateX(-50%);
+        }
+
+        .timeline-item {
+            position: relative;
+            padding: 2rem 0;
+        }
+
+        .timeline-content {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 2.5rem;
+            width: 45%;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .timeline-item:nth-child(odd) .timeline-content {
+            margin-left: 55%;
+        }
+
+        .timeline-item:nth-child(even) .timeline-content {
+            margin-right: 55%;
+            margin-left: 0;
+        }
+
+        .timeline-content:hover {
+            transform: scale(1.02);
+            border-color: var(--accent);
+        }
+
+        .timeline-dot {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: var(--accent);
+            border-radius: 50%;
+            left: 50%;
+            top: 2.5rem;
+            transform: translateX(-50%);
+            box-shadow: 0 0 0 4px var(--gray-dark), 0 0 0 8px var(--accent);
+        }
+
+        .timeline-step {
+            font-size: 0.9rem;
+            color: var(--accent);
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .timeline-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .timeline-desc {
+            opacity: 0.7;
+            line-height: 1.6;
+        }
+
+        /* Testimonials */
+        .testimonials {
+            padding: 8rem 3rem;
+            background: var(--black);
+        }
+
+        .testimonials-slider {
+            max-width: 900px;
+            margin: 5rem auto;
+            position: relative;
+        }
+
+        .testimonial {
+            text-align: center;
+            padding: 3rem;
+        }
+
+        .testimonial-quote {
+            font-size: 1.8rem;
+            line-height: 1.8;
+            margin-bottom: 2rem;
+            font-style: italic;
+            opacity: 0.9;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1.5rem;
+        }
+
+        .testimonial-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .testimonial-info {
+            text-align: left;
+        }
+
+        .testimonial-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+        }
+
+        .testimonial-role {
+            opacity: 0.6;
+        }
+
+        /* CTA Section */
+        .cta {
+            padding: 10rem 3rem;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-glow) 100%);
+            text-align: center;
+        }
+
+        .cta-title {
+            font-size: clamp(2.5rem, 6vw, 5rem);
+            font-weight: 900;
+            margin-bottom: 1.5rem;
+        }
+
+        .cta-desc {
+            font-size: 1.5rem;
+            margin-bottom: 3rem;
+            opacity: 0.9;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .cta-btn {
+            padding: 1.5rem 3rem;
+            font-size: 1.2rem;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .cta-btn-primary {
+            background: var(--white);
+            color: var(--accent);
+        }
+
+        .cta-btn-secondary {
+            background: transparent;
+            color: var(--white);
+            border: 2px solid var(--white);
+        }
+
+        .cta-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Footer */
+        footer {
+            padding: 5rem 3rem 2rem;
+            background: var(--gray-dark);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 4rem;
+            margin-bottom: 3rem;
+        }
+
+        .footer-brand h3 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(90deg, var(--white), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .footer-brand p {
+            opacity: 0.7;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+
+        .footer-social {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .social-link {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .social-link:hover {
+            background: var(--accent);
+            transform: translateY(-3px);
+        }
+
+        .footer-column h4 {
+            margin-bottom: 1.5rem;
+            font-size: 1.2rem;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 1rem;
+        }
+
+        .footer-links a {
+            color: var(--white);
+            opacity: 0.7;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            opacity: 1;
+            color: var(--accent);
+        }
+
+        .footer-bottom {
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Floating Action Button */
+        .fab {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: var(--accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1000;
+            box-shadow: 0 10px 30px rgba(255, 62, 0, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .fab:hover {
+            transform: scale(1.1) rotate(90deg);
+            background: var(--accent-glow);
+        }
+
+        .fab-icon {
+            font-size: 1.5rem;
+        }
+
+        /* Mobile Menu */
+        .mobile-menu-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 4px;
+            cursor: pointer;
+        }
+
+        .mobile-menu-toggle span {
+            width: 25px;
+            height: 2px;
+            background: var(--white);
+            transition: all 0.3s ease;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .timeline-content {
+                width: 100% !important;
+                margin: 0 !important;
+            }
+
+            .timeline::before {
+                left: 30px;
+            }
+
+            .timeline-dot {
+                left: 30px;
+            }
+
+            .portfolio-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .portfolio-item:first-child {
+                grid-column: span 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu-toggle {
+                display: flex;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .hero-title {
+                font-size: 3rem;
+            }
+
+            .hero-stats {
+                flex-direction: column;
+                gap: 2rem;
+            }
+
+            .services-grid,
+            .pricing-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .footer-social {
+                justify-content: center;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+            }
+        }
+
+        /* Special Effects */
+        .glow {
+            text-shadow: 0 0 30px var(--accent);
+        }
+
+        .parallax {
+            transition: transform 0.5s ease;
+        }
+
+        /* Notification Badge */
+        .notification-badge {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            background: var(--gray-dark);
+            border: 1px solid var(--accent);
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            z-index: 999;
+            display: none;
+            animation: slideInRight 0.5s ease;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+            }
+            to {
+                transform: translateX(0);
+            }
+        }
+
+        .notification-badge.show {
+            display: block;
+        }
+
+        /* Live Chat Widget Placeholder */
+        .chat-widget {
+            position: fixed;
+            bottom: 30px;
+            right: 100px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #25D366, #128C7E);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 999;
+            box-shadow: 0 10px 30px rgba(37, 211, 102, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .chat-widget:hover {
+            transform: scale(1.1);
+        }
+
+        .chat-widget-icon {
+            font-size: 1.8rem;
+        }
+
+        /* Limited Time Offer Banner */
+        .offer-banner {
+            background: linear-gradient(90deg, var(--accent), var(--accent-glow));
+            padding: 1rem;
+            text-align: center;
+            font-weight: 600;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .offer-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loader" id="loader">
+        <div class="loader-text">LETYOU</div>
+    </div>
+
+    <!-- Offer Banner -->
+    <div class="offer-banner">
+        🔥 11월 한정 특별 할인 - 첫 3팀만 50% OFF! 남은 자리: 2팀
+    </div>
+
+    <!-- Custom Cursor -->
+    <div class="cursor"></div>
+    <div class="cursor-follower"></div>
+
+    <!-- Navigation -->
+    <nav id="navbar">
+        <div class="nav-container">
+            <div class="logo">LetYou</div>
+            <ul class="nav-links">
+                <li><a href="#portfolio">포트폴리오</a></li>
+                <li><a href="#services">서비스</a></li>
+                <li><a href="#pricing">가격</a></li>
+                <li><a href="#process">프로세스</a></li>
+                <li><a href="#contact" class="nav-cta">무료 상담</a></li>
+            </ul>
+            <div class="mobile-menu-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <canvas id="canvas-container"></canvas>
+        <div class="hero-content">
+            <h1 class="hero-title">
+                <span class="gradient-text">We Let You</span><br>
+                Shine Digital
+            </h1>
+            <p class="hero-subtitle">AI와 인간 창의성이 만나는 곳, 당신의 비즈니스가 빛나는 순간</p>
+            <div class="hero-stats">
+                <div class="hero-stat">
+                    <span class="hero-stat-number">127+</span>
+                    <span class="hero-stat-label">완료 프로젝트</span>
+                </div>
+                <div class="hero-stat">
+                    <span class="hero-stat-number">0.5초</span>
+                    <span class="hero-stat-label">평균 로딩</span>
+                </div>
+                <div class="hero-stat">
+                    <span class="hero-stat-number">300%</span>
+                    <span class="hero-stat-label">전환율 상승</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Portfolio Section -->
+    <section class="portfolio" id="portfolio">
+        <div class="container">
+            <div class="section-header fade-in">
+                <div class="section-label">PORTFOLIO</div>
+                <h2 class="section-title">대한민국 대표 기업들의 선택</h2>
+                <p class="section-desc">삼성, 현대, 카카오가 LetYou를 선택한 이유</p>
+            </div>
+            <div class="portfolio-grid">
+                <div class="portfolio-item fade-in">
+                    <video class="portfolio-video" autoplay muted loop>
+                        <source src="data:video/mp4;base64,AAAAAA==" type="video/mp4">
+                    </video>
+                    <div class="portfolio-overlay">
+                        <div class="portfolio-client">SAMSUNG ELECTRONICS</div>
+                        <h3 class="portfolio-title">Galaxy Unpacked 2025</h3>
+                        <p class="portfolio-desc">3D WebGL과 AI를 활용한 몰입형 제품 런칭 사이트. 첫 24시간 500만 방문 달성.</p>
+                        <div class="portfolio-tags">
+                            <span class="portfolio-tag">Three.js</span>
+                            <span class="portfolio-tag">React</span>
+                            <span class="portfolio-tag">AI Integration</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="portfolio-item fade-in">
+                    <video class="portfolio-video" autoplay muted loop>
+                        <source src="data:video/mp4;base64,AAAAAA==" type="video/mp4">
+                    </video>
+                    <div class="portfolio-overlay">
+                        <div class="portfolio-client">HYUNDAI MOTOR</div>
+                        <h3 class="portfolio-title">IONIQ 6 Experience</h3>
+                        <p class="portfolio-desc">전기차 구매 전환율 450% 상승. AR 시승 체험 제공.</p>
+                        <div class="portfolio-tags">
+                            <span class="portfolio-tag">WebAR</span>
+                            <span class="portfolio-tag">Next.js</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="portfolio-item fade-in">
+                    <video class="portfolio-video" autoplay muted loop>
+                        <source src="data:video/mp4;base64,AAAAAA==" type="video/mp4">
+                    </video>
+                    <div class="portfolio-overlay">
+                        <div class="portfolio-client">KAKAO BANK</div>
+                        <h3 class="portfolio-title">모바일 뱅킹 혁신</h3>
+                        <p class="portfolio-desc">0.3초 로딩, 일일 활성 사용자 200% 증가.</p>
+                        <div class="portfolio-tags">
+                            <span class="portfolio-tag">PWA</span>
+                            <span class="portfolio-tag">Performance</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section class="services" id="services">
+        <div class="container">
+            <div class="section-header fade-in">
+                <div class="section-label">SERVICES</div>
+                <h2 class="section-title">우리가 만드는 차이</h2>
+                <p class="section-desc">기술과 창의성의 완벽한 조화</p>
+            </div>
+            <div class="services-grid">
+                <div class="service-card fade-in">
+                    <div class="service-icon">⚡</div>
+                    <h3 class="service-title">초고속 웹사이트</h3>
+                    <p class="service-desc">0.5초 로딩, 100점 성능 점수. 경쟁사 대비 5배 빠른 속도로 이탈률 90% 감소.</p>
+                    <ul class="service-features">
+                        <li>Next.js 14 최신 기술</li>
+                        <li>글로벌 CDN 배포</li>
+                        <li>이미지 최적화 자동화</li>
+                    </ul>
+                </div>
+                <div class="service-card fade-in">
+                    <div class="service-icon">🎨</div>
+                    <h3 class="service-title">AI 기반 디자인</h3>
+                    <p class="service-desc">사용자 행동 분석 AI가 실시간으로 최적화하는 디자인. 전환율 보장.</p>
+                    <ul class="service-features">
+                        <li>A/B 테스트 자동화</li>
+                        <li>개인화된 UX 제공</li>
+                        <li>히트맵 분석 포함</li>
+                    </ul>
+                </div>
+                <div class="service-card fade-in">
+                    <div class="service-icon">🚀</div>
+                    <h3 class="service-title">매출 직결 솔루션</h3>
+                    <p class="service-desc">단순한 홈페이지가 아닌 24시간 일하는 영업사원. ROI 300% 보장.</p>
+                    <ul class="service-features">
+                        <li>전환 퍼널 최적화</li>
+                        <li>실시간 채팅 상담</li>
+                        <li>결제 시스템 통합</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section class="pricing" id="pricing">
+        <div class="container">
+            <div class="section-header fade-in">
+                <div class="section-label">PRICING</div>
+                <h2 class="section-title">투명한 가격, 확실한 결과</h2>
+                <p class="section-desc">모든 플랜 2주 완성, 6개월 무료 유지보수 포함</p>
+            </div>
+            <div class="pricing-grid">
+                <div class="pricing-card fade-in">
+                    <h3 class="pricing-plan">스타트업</h3>
+                    <div class="pricing-price">299<span>만원</span></div>
+                    <div class="pricing-period">일시불 또는 3개월 분할</div>
+                    <ul class="pricing-features">
+                        <li>5페이지 반응형 웹사이트</li>
+                        <li>모바일 최적화</li>
+                        <li>기본 SEO 세팅</li>
+                        <li>SSL 보안 인증서</li>
+                        <li>2주 완성 보장</li>
+                    </ul>
+                    <button class="pricing-cta">지금 시작하기</button>
+                </div>
+                <div class="pricing-card featured fade-in">
+                    <h3 class="pricing-plan">프로페셔널</h3>
+                    <div class="pricing-price">599<span>만원</span></div>
+                    <div class="pricing-period">일시불 또는 6개월 분할</div>
+                    <ul class="pricing-features">
+                        <li>10페이지 + 관리자 페이지</li>
+                        <li>AI 챗봇 통합</li>
+                        <li>고급 애니메이션</li>
+                        <li>A/B 테스트 3회</li>
+                        <li>전환율 최적화 컨설팅</li>
+                        <li>구글 애널리틱스 세팅</li>
+                    </ul>
+                    <button class="pricing-cta">지금 시작하기</button>
+                </div>
+                <div class="pricing-card fade-in">
+                    <h3 class="pricing-plan">엔터프라이즈</h3>
+                    <div class="pricing-price">1299<span>만원~</span></div>
+                    <div class="pricing-period">맞춤 견적</div>
+                    <ul class="pricing-features">
+                        <li>무제한 페이지</li>
+                        <li>맞춤 기능 개발</li>
+                        <li>앱 개발 포함</li>
+                        <li>1년 유지보수</li>
+                        <li>전담 PM 배정</li>
+                        <li>매월 성과 리포트</li>
+                    </ul>
+                    <button class="pricing-cta">상담 예약하기</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Process Section -->
+    <section class="process" id="process">
+        <div class="container">
+            <div class="section-header fade-in">
+                <div class="section-label">PROCESS</div>
+                <h2 class="section-title">14일의 기적</h2>
+                <p class="section-desc">체계적인 프로세스로 2주 안에 완성합니다</p>
+            </div>
+            <div class="timeline">
+                <div class="timeline-item fade-in">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-step">DAY 1-3</div>
+                        <h3 class="timeline-title">전략 수립</h3>
+                        <p class="timeline-desc">비즈니스 분석, 경쟁사 리서치, 목표 설정. AI가 최적의 전략을 도출합니다.</p>
+                    </div>
+                </div>
+                <div class="timeline-item fade-in">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-step">DAY 4-7</div>
+                        <h3 class="timeline-title">디자인 & 프로토타입</h3>
+                        <p class="timeline-desc">와이어프레임, UI/UX 디자인, 인터랙티브 프로토타입 제작.</p>
+                    </div>
+                </div>
+                <div class="timeline-item fade-in">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-step">DAY 8-11</div>
+                        <h3 class="timeline-title">개발 & 테스트</h3>
+                        <p class="timeline-desc">프론트엔드/백엔드 개발, 기능 구현, 크로스 브라우징 테스트.</p>
+                    </div>
+                </div>
+                <div class="timeline-item fade-in">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-step">DAY 12-14</div>
+                        <h3 class="timeline-title">최적화 & 런칭</h3>
+                        <p class="timeline-desc">성능 최적화, SEO 세팅, 실서버 배포, 모니터링 시작.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="testimonials">
+        <div class="container">
+            <div class="section-header fade-in">
+                <div class="section-label">TESTIMONIALS</div>
+                <h2 class="section-title">고객이 증명하는 가치</h2>
+            </div>
+            <div class="testimonials-slider fade-in">
+                <div class="testimonial">
+                    <p class="testimonial-quote">"LetYou와 작업한 후 온라인 매출이 450% 증가했습니다. 단순한 웹사이트가 아니라 우리 비즈니스의 게임체인저였습니다."</p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">김</div>
+                        <div class="testimonial-info">
+                            <div class="testimonial-name">김민수</div>
+                            <div class="testimonial-role">스타트업 CEO, 테크노바</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta">
+        <div class="container">
+            <h2 class="cta-title fade-in">지금이 바로 그 시작입니다</h2>
+            <p class="cta-desc fade-in">2주 후, 당신의 비즈니스는 완전히 달라져 있을 것입니다</p>
+            <div class="cta-buttons fade-in">
+                <a href="tel:010-1234-5678" class="cta-btn cta-btn-primary">📞 지금 전화하기</a>
+                <a href="#contact" class="cta-btn cta-btn-secondary">무료 상담 예약</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-brand">
+                <h3>LetYou</h3>
+                <p>We Let You Shine Digital<br>디지털 혁신의 새로운 기준을 만듭니다</p>
+                <div class="footer-social">
+                    <a href="#" class="social-link">📧</a>
+                    <a href="#" class="social-link">📷</a>
+                    <a href="#" class="social-link">💼</a>
+                </div>
+            </div>
+            <div class="footer-column">
+                <h4>서비스</h4>
+                <ul class="footer-links">
+                    <li><a href="#">웹사이트 제작</a></li>
+                    <li><a href="#">쇼핑몰 구축</a></li>
+                    <li><a href="#">앱 개발</a></li>
+                    <li><a href="#">브랜딩</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h4>회사</h4>
+                <ul class="footer-links">
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">포트폴리오</a></li>
+                    <li><a href="#">가격</a></li>
+                    <li><a href="#">블로그</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h4>연락처</h4>
+                <ul class="footer-links">
+                    <li>📞 010-1234-5678</li>
+                    <li>✉️ hello@letyou.kr</li>
+                    <li>🏢 서울시 강남구</li>
+                    <li>⏰ 월-금 09:00-18:00</li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 LetYou. All rights reserved.</p>
+            <p>사업자등록번호: 123-45-67890</p>
+        </div>
+    </footer>
+
+    <!-- Floating Action Buttons -->
+    <div class="fab" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+        <span class="fab-icon">↑</span>
+    </div>
+    
+    <div class="chat-widget">
+        <span class="chat-widget-icon">💬</span>
+    </div>
+
+    <!-- Notification Badge -->
+    <div class="notification-badge" id="notification">
+        <p>🔥 방금 김*수님이 프로페셔널 플랜을 선택하셨습니다</p>
+    </div>
+
+    <script>
+        // Loading Screen
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('loader').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('loader').style.display = 'none';
+                }, 500);
+            }, 1000);
+        });
+
+        // Custom Cursor
+        const cursor = document.querySelector('.cursor');
+        const follower = document.querySelector('.cursor-follower');
+        
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+            
+            setTimeout(() => {
+                follower.style.left = e.clientX - 10 + 'px';
+                follower.style.top = e.clientY - 10 + 'px';
+            }, 100);
+        });
+
+        document.addEventListener('mousedown', () => {
+            cursor.classList.add('hover');
+            follower.style.transform = 'scale(0.8)';
+        });
+
+        document.addEventListener('mouseup', () => {
+            cursor.classList.remove('hover');
+            follower.style.transform = 'scale(1)';
+        });
+
+        // Navbar Scroll
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Three.js Background
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({
+            canvas: document.getElementById('canvas-container'),
+            alpha: true,
+            antialias: true
+        });
+
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+
+        // Create particles
+        const particlesGeometry = new THREE.BufferGeometry();
+        const particlesCount = 3000;
+        const posArray = new Float32Array(particlesCount * 3);
+
+        for(let i = 0; i < particlesCount * 3; i++) {
+            posArray[i] = (Math.random() - 0.5) * 10;
+        }
+
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+        
+        const particlesMaterial = new THREE.PointsMaterial({
+            size: 0.005,
+            color: '#FF3E00',
+            transparent: true,
+            opacity: 0.8,
+            blending: THREE.AdditiveBlending
+        });
+
+        const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+        scene.add(particlesMesh);
+
+        camera.position.z = 3;
+
+        // Animation loop
+        const animate = () => {
+            requestAnimationFrame(animate);
+            
+            particlesMesh.rotation.x += 0.001;
+            particlesMesh.rotation.y += 0.001;
+            
+            renderer.render(scene, camera);
+        };
+
+        animate();
+
+        // Window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Intersection Observer
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Show notifications
+        let notifications = [
+            "🔥 방금 이*희님이 무료 상담을 신청하셨습니다",
+            "⚡ 김*수님이 프로페셔널 플랜을 선택하셨습니다",
+            "🎉 박*진님 사이트 2주 만에 완성!",
+            "💎 최*영님 매출 300% 상승 달성!"
+        ];
+
+        let notificationIndex = 0;
+        setInterval(() => {
+            const notificationEl = document.getElementById('notification');
+            notificationEl.innerHTML = `<p>${notifications[notificationIndex % notifications.length]}</p>`;
+            notificationEl.classList.add('show');
+            
+            setTimeout(() => {
+                notificationEl.classList.remove('show');
+            }, 4000);
+            
+            notificationIndex++;
+        }, 10000);
+
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Parallax effect
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const parallax = document.querySelectorAll('.parallax');
+            
+            parallax.forEach(element => {
+                const speed = element.dataset.speed || 0.5;
+                element.style.transform = `translateY(${scrolled * speed}px)`;
+            });
+        });
+
+        // Chat widget click
+        document.querySelector('.chat-widget').addEventListener('click', () => {
+            window.open('https://wa.me/821012345678?text=안녕하세요! LetYou 홈페이지 제작 문의드립니다.', '_blank');
+        });
+
+        // CTA button animations
+        document.querySelectorAll('.pricing-cta, .cta-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Create ripple effect
+                const ripple = document.createElement('span');
+                ripple.classList.add('ripple');
+                this.appendChild(ripple);
+                
+                const x = e.clientX - e.target.offsetLeft;
+                const y = e.clientY - e.target.offsetTop;
+                
+                ripple.style.left = x + 'px';
+                ripple.style.top = y + 'px';
+                
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+                
+                // Redirect or action
+                if(this.textContent.includes('전화')) {
+                    window.location.href = 'tel:010-1234-5678';
+                } else {
+                    alert('🎉 상담 신청이 접수되었습니다! 30분 내로 연락드리겠습니다.');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
